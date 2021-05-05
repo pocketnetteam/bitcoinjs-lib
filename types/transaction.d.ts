@@ -21,6 +21,7 @@ export declare class Transaction {
     static fromHex(hex: string): Transaction;
     static isCoinbaseHash(buffer: Buffer): boolean;
     version: number;
+    nTime: number;
     locktime: number;
     ins: Input[];
     outs: Output[];

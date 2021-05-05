@@ -107,6 +107,7 @@ export class TransactionBuilder {
     // Copy transaction fields
     txb.setVersion(transaction.version);
     txb.setLockTime(transaction.locktime);
+    txb.setNTime(transaction.nTime);
 
     // Copy outputs (done first to avoid signature invalidation)
     transaction.outs.forEach(txOut => {
@@ -145,14 +146,9 @@ export class TransactionBuilder {
     this.__INPUTS = [];
     this.__TX = new Transaction();
     this.__TX.version = 2;
+    this.__TX.nTime = Math.floor((new Date().getTime()) / 1000);
     this.__USE_LOW_R = false;
-    console.warn(
-      'Deprecation Warning: TransactionBuilder will be removed in the future. ' +
-        '(v6.x.x or later) Please use the Psbt class instead. Examples of usage ' +
-        'are available in the transactions-psbt.js integration test file on our ' +
-        'Github. A high level explanation is available in the psbt.ts and psbt.js ' +
-        'files as well.',
-    );
+    
   }
 
   setLowR(setting?: boolean): boolean {
@@ -181,10 +177,18 @@ export class TransactionBuilder {
     this.__TX.locktime = locktime;
   }
 
+  setNTime (time: number): void {
+    typeforce(types.UInt32, time)
+    this.__TX.nTime = time
+  }
+  
+  addNTime(time: number): void {
+    typeforce(types.UInt32, time)
+    this.__TX.nTime = this.__TX.nTime + time
+  }
+
   setVersion(version: number): void {
     typeforce(types.UInt32, version);
-
-    // XXX: this might eventually become more complex depending on what the versions represent
     this.__TX.version = version;
   }
 

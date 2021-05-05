@@ -14,6 +14,7 @@ const types = {
   NULLDATA: 'nulldata' as string,
   P2PK: 'pubkey' as string,
   P2PKH: 'pubkeyhash' as string,
+  //HTLC: 'htlc' as string,
   P2SH: 'scripthash' as string,
   P2WPKH: 'witnesspubkeyhash' as string,
   P2WSH: 'witnessscripthash' as string,

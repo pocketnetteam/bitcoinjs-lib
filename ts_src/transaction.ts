@@ -71,6 +71,7 @@ export class Transaction {
 
     const tx = new Transaction();
     tx.version = bufferReader.readInt32();
+    tx.nTime = bufferReader.readInt32();
 
     const marker = bufferReader.readUInt8();
     const flag = bufferReader.readUInt8();
@@ -136,6 +137,7 @@ export class Transaction {
   }
 
   version: number = 1;
+  nTime: number = 0;
   locktime: number = 0;
   ins: Input[] = [];
   outs: Output[] = [];
@@ -210,6 +212,7 @@ export class Transaction {
     const hasWitnesses = _ALLOW_WITNESS && this.hasWitnesses();
 
     return (
+      4 +
       (hasWitnesses ? 10 : 8) +
       varuint.encodingLength(this.ins.length) +
       varuint.encodingLength(this.outs.length) +
@@ -230,7 +233,10 @@ export class Transaction {
   clone(): Transaction {
     const newTx = new Transaction();
     newTx.version = this.version;
+    newTx.nTime = this.nTime;
     newTx.locktime = this.locktime;
+
+    
 
     newTx.ins = this.ins.map(txIn => {
       return {
@@ -472,6 +478,7 @@ export class Transaction {
     const bufferWriter = new BufferWriter(buffer, initialOffset || 0);
 
     bufferWriter.writeInt32(this.version);
+    bufferWriter.writeInt32(this.nTime);
 
     const hasWitnesses = _ALLOW_WITNESS && this.hasWitnesses();
 

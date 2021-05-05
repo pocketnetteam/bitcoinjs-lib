@@ -11,6 +11,8 @@ import {
   PsbtOutputUpdate,
   Transaction as ITransaction,
   TransactionFromBuffer,
+  TransactionInput,
+  TransactionOutput,
 } from 'bip174/src/lib/interfaces';
 import { checkForInput, checkForOutput } from 'bip174/src/lib/utils';
 import { fromOutputScript, toOutputScript } from './address';
@@ -26,19 +28,8 @@ import * as payments from './payments';
 import * as bscript from './script';
 import { Output, Transaction } from './transaction';
 
-export interface TransactionInput {
-  hash: string | Buffer;
-  index: number;
-  sequence?: number;
-}
-
 export interface PsbtTxInput extends TransactionInput {
   hash: Buffer;
-}
-
-export interface TransactionOutput {
-  script: Buffer;
-  value: number;
 }
 
 export interface PsbtTxOutput extends TransactionOutput {
