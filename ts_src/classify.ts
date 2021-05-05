@@ -4,6 +4,7 @@ import * as nullData from './templates/nulldata';
 import * as pubKey from './templates/pubkey';
 import * as pubKeyHash from './templates/pubkeyhash';
 import * as scriptHash from './templates/scripthash';
+import * as htlc from './templates/htlc';
 import * as witnessCommitment from './templates/witnesscommitment';
 import * as witnessPubKeyHash from './templates/witnesspubkeyhash';
 import * as witnessScriptHash from './templates/witnessscripthash';
@@ -14,7 +15,7 @@ const types = {
   NULLDATA: 'nulldata' as string,
   P2PK: 'pubkey' as string,
   P2PKH: 'pubkeyhash' as string,
-  //HTLC: 'htlc' as string,
+  HTLC: 'htlc' as string,
   P2SH: 'scripthash' as string,
   P2WPKH: 'witnesspubkeyhash' as string,
   P2WSH: 'witnessscripthash' as string,
@@ -26,6 +27,7 @@ function classifyOutput(script: Buffer): string {
   if (witnessScriptHash.output.check(script)) return types.P2WSH;
   if (pubKeyHash.output.check(script)) return types.P2PKH;
   if (scriptHash.output.check(script)) return types.P2SH;
+  if (htlc.output.check(script)) return types.HTLC;
 
   // XXX: optimization, below functions .decompile before use
   const chunks = decompile(script);
@@ -46,6 +48,7 @@ function classifyInput(script: Buffer, allowIncomplete?: boolean): string {
 
   if (pubKeyHash.input.check(chunks)) return types.P2PKH;
   if (scriptHash.input.check(chunks, allowIncomplete)) return types.P2SH;
+  if (htlc.input.check(chunks, allowIncomplete)) return types.HTLC;
   if (multisig.input.check(chunks, allowIncomplete)) return types.P2MS;
   if (pubKey.input.check(chunks)) return types.P2PK;
 

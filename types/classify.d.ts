@@ -4,6 +4,7 @@ declare const types: {
     NULLDATA: string;
     P2PK: string;
     P2PKH: string;
+    HTLC: string;
     P2SH: string;
     P2WPKH: string;
     P2WSH: string;

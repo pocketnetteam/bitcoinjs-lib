@@ -15,7 +15,7 @@
     "bitcoinjs"
   ],
   "scripts": {
-    "browser" : "browserify ./src/foobrowser.js -o dist/btc17.js",
+    "browserify": "browserify ./export/browserify.js -o dist/btc17.js",
     "build": "npm run clean && tsc -p ./tsconfig.json && npm run formatjs",
     "build:tests": "npm run clean:jstests && tsc -p ./test/tsconfig.json",
     "clean": "rimraf src types",

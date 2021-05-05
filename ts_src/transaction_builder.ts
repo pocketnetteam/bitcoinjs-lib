@@ -22,7 +22,9 @@ const PREVOUT_TYPES: Set<string> = new Set([
   'p2pk',
   'p2wpkh',
   'p2ms',
+  'htlc',
   // P2SH wrapped
+  'p2sh-htlc', /// ????
   'p2sh-p2pkh',
   'p2sh-p2pk',
   'p2sh-p2wpkh',
@@ -183,7 +185,6 @@ export class TransactionBuilder {
   }
   
   addNTime(time: number): void {
-    typeforce(types.UInt32, time)
     this.__TX.nTime = this.__TX.nTime + time
   }
 
@@ -620,6 +621,16 @@ function expandOutput(script: Buffer, ourPubKey?: Buffer): TxbOutput {
   const type = classify.output(script);
 
   switch (type) {
+
+    case SCRIPT_TYPES.HTLC: {
+      if (!ourPubKey) return { type };
+
+      return {
+        type,
+        pubkeys: [ourPubKey]
+      };
+    }
+
     case SCRIPT_TYPES.P2PKH: {
       if (!ourPubKey) return { type };
 
@@ -730,20 +741,42 @@ function prepareInput(
   }
 
   if (redeemScript) {
-    const p2sh = payments.p2sh({ redeem: { output: redeemScript } }) as Payment;
 
-    if (input.prevOutScript) {
-      let p2shAlt;
-      try {
-        p2shAlt = payments.p2sh({ output: input.prevOutScript }) as Payment;
-      } catch (e) {
-        throw new Error('PrevOutScript must be P2SH');
-      }
-      if (!p2sh.hash!.equals(p2shAlt.hash!))
-        throw new Error('Redeem script inconsistent with prevOutScript');
+    const expanded = expandOutput(redeemScript, ourPubKey);
+
+    let payment = null
+    let paymentAlt = null
+    let paymentconst
+
+    if(expanded.type == SCRIPT_TYPES.P2SH){
+      paymentconst = payments.p2sh
     }
 
-    const expanded = expandOutput(p2sh.redeem!.output!, ourPubKey);
+    if(expanded.type == SCRIPT_TYPES.HTLC){
+      paymentconst = payments.htlc
+    }
+
+    if(!paymentconst) throw new Error('non standart');
+
+    payment = paymentconst({ redeem: { output: redeemScript } }) as Payment;
+
+    if(paymentconst){
+
+      
+
+      if (input.prevOutScript) {
+        
+        try {
+          paymentAlt = paymentconst({ output: input.prevOutScript }) as Payment;
+        } catch (e) {
+          throw new Error('PrevOutScript must be P2SH');
+        }
+        if (!payment.hash!.equals(paymentAlt.hash!))
+          throw new Error('Redeem script inconsistent with prevOutScript');
+      }
+    }
+
+    
     if (!expanded.pubkeys)
       throw new Error(
         expanded.type +
@@ -764,8 +797,8 @@ function prepareInput(
       redeemScript,
       redeemScriptType: expanded.type,
 
-      prevOutType: SCRIPT_TYPES.P2SH,
-      prevOutScript: p2sh.output,
+      prevOutType: expanded.type ==  SCRIPT_TYPES.HTLC ?  SCRIPT_TYPES.HTLC : SCRIPT_TYPES.P2SH,
+      prevOutScript: payment.output,
 
       hasWitness: expanded.type === SCRIPT_TYPES.P2WPKH,
       signScript,
@@ -821,6 +854,11 @@ function prepareInput(
 
   if (input.prevOutType && input.prevOutScript) {
     // embedded scripts are not possible without extra information
+    if (input.prevOutType === SCRIPT_TYPES.HTLC)
+    throw new Error(
+      'PrevOutScript is ' + input.prevOutType + ', requires redeemScript',
+    );
+
     if (input.prevOutType === SCRIPT_TYPES.P2SH)
       throw new Error(
         'PrevOutScript is ' + input.prevOutType + ', requires redeemScript',
@@ -920,6 +958,20 @@ function build(
         { allowIncomplete, validate },
       );
     }
+
+    case SCRIPT_TYPES.HTLC: {
+      const redeem = build(input.redeemScriptType!, input, allowIncomplete);
+      if (!redeem) return;
+
+      return payments.htlc({
+        redeem: {
+          output: redeem.output || input.redeemScript,
+          input: redeem.input,
+          witness: redeem.witness,
+        },
+      });
+    }
+
     case SCRIPT_TYPES.P2SH: {
       const redeem = build(input.redeemScriptType!, input, allowIncomplete);
       if (!redeem) return;
@@ -1097,6 +1149,26 @@ function checkSignArgs(inputs: TxbInput[], signParams: TxbSignArg): void {
         `${posType} requires witnessValue`,
       );
       break;
+
+    case 'htlc':
+      if (prevOutType && prevOutType !== 'htlc') {
+        throw new TypeError(
+          `input #${signParams.vin} is not of type ${posType}: ${prevOutType}`,
+        );
+      }
+
+      /*tfMessage(
+        typeforce.string,
+        signParams.secret,
+        `${posType} requires redeemScript`,
+      );*/
+
+      tfMessage(
+        typeforce.Buffer,
+        signParams.redeemScript,
+        `${posType} requires redeemScript`,
+      );
+
     case 'p2sh-p2ms':
     case 'p2sh-p2pk':
     case 'p2sh-p2pkh':
@@ -1195,7 +1267,7 @@ function trySign({
 
     const signature = keyPair.sign(signatureHash, useLowR);
     input.signatures![i] = bscript.signature.encode(signature, hashType);
-    signed = true;
+    signed = true; /////////////////////
   }
 
   if (!signed) throw new Error('Key pair cannot sign for this input');

@@ -72,7 +72,7 @@ export function fromOutputScript(output: Buffer, network?: Network): string {
     return payments.p2pkh({ output, network }).address as string;
   } catch (e) {}
   try {
-    return payments.p2sh({ output, network }).address as string;
+    return payments.p2sh({ output, network }).address as string; /// htlc same
   } catch (e) {}
   try {
     return payments.p2wpkh({ output, network }).address as string;
