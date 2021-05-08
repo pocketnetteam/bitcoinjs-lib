@@ -15,16 +15,10 @@
     "bitcoinjs"
   ],
   "scripts": {
-    
     "browserify": "browserify ./export/browserify.js -o dist/btc17.js",
-    "build:browserify": "npm run build && browserify ./export/browserify.js -o dist/btc17.js",
-    "build:browserify:test": "npm run build:testnetwork && browserify ./export/browserifytest.js -o dist/btc17test.js",
-
-    "build": "npm run clean && tsc -p ./tsconfig.js && npm run formatjs",
-    "build:testnetwork": "npm run clean:testnetwork && tsc -p ./tsconfig.js && npm run formatjs --test",
+    "build": "npm run clean && tsc -p ./tsconfig.json && npm run formatjs",
     "build:tests": "npm run clean:jstests && tsc -p ./test/tsconfig.json",
-    "clean": "rimraf src/production types",
-    "clean:testnetwork": "rimraf src/test types",
+    "clean": "rimraf src types",
     "clean:jstests": "rimraf 'test/**/!(ts-node-register)*.js'",
     "coverage-report": "npm run build && npm run nobuild:coverage-report",
     "coverage-html": "npm run build && npm run nobuild:coverage-html",
@@ -34,7 +28,7 @@
     "format:ci": "npm run prettier -- --check && npm run prettierjs -- --check",
     "gitdiff:ci": "npm run build && git diff --exit-code",
     "integration": "npm run build && npm run nobuild:integration",
-    "lint": "tslint -p tsconfig.js -c tslint.json",
+    "lint": "tslint -p tsconfig.json -c tslint.json",
     "lint:tests": "tslint -p test/tsconfig.json -c tslint.json",
     "mocha:ts": "mocha --recursive --require test/ts-node-register",
     "nobuild:coverage-report": "nyc report --reporter=lcov",

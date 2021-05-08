@@ -14,20 +14,8 @@ interface Bip32 {
   private: number;
 }
 
-var test = process.argv[0] == 'test' ? true : false
-
-export const bitcoin: Network = test ? {
-  messagePrefix: '\x18TestPocketnet Signed Message :\n',
-  bech32: 'tb',
-  bip32: {
-    public: 0x043587cf,
-    private: 0x04358394,
-  },
-  pubKeyHash: 0x6f,
-  scriptHash: 0xc4,
-  wif: 0xef
-} : {
-  messagePrefix: '\x18Pocketnet Signed Message:\n',
+export const bitcoin: Network = {
+  messagePrefix: '\x18Bitcoin Signed Message:\n',
   bech32: 'bc',
   bip32: {
     public: 0x043587cf,
@@ -38,8 +26,7 @@ export const bitcoin: Network = test ? {
   wif: 0x21
 };
 
-/*
-const testnet: Network = {
+export const testnet: Network = {
   messagePrefix: '\x18Bitcoin Signed Message:\n',
   bech32: 'tb',
   bip32: {
@@ -48,5 +35,5 @@ const testnet: Network = {
   },
   pubKeyHash: 0x6f,
   scriptHash: 0xc4,
-  wif: 0xef
-};*/
+  wif: 0xef,
+};

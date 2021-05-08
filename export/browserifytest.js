@@ -1,1 +1,0 @@
-bitcoin = require('../src/index.js');
