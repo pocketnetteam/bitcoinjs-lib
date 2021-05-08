@@ -4,13 +4,13 @@ import * as scriptSignature from './script_signature';
 import * as types from './types';
 const bip66 = require('bip66');
 const ecc = require('tiny-secp256k1');
-const pushdata = require('pushdata-bitcoin');
+const pushdata = require('../editedmodules/pushdata-bitcoin');
 const typeforce = require('typeforce');
 
 export type OpCode = number;
-export const OPS = require('bitcoin-ops') as { [index: string]: OpCode };
+export const OPS = require('../editedmodules/bitcoin-ops') as { [index: string]: OpCode };
 
-const REVERSE_OPS = require('bitcoin-ops/map') as { [index: number]: string };
+const REVERSE_OPS = require('../editedmodules/bitcoin-ops/map') as { [index: number]: string };
 const OP_INT_BASE = OPS.OP_RESERVED; // OP_1 - 1
 
 function isOPInt(value: number): boolean {

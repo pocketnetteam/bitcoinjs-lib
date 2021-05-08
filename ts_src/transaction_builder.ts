@@ -756,13 +756,11 @@ function prepareInput(
       paymentconst = payments.htlc
     }
 
-    if(!paymentconst) throw new Error('non standart');
+    if(!paymentconst) paymentconst = payments.p2sh
 
     payment = paymentconst({ redeem: { output: redeemScript } }) as Payment;
 
-    if(paymentconst){
-
-      
+    if (paymentconst){
 
       if (input.prevOutScript) {
         
@@ -775,7 +773,6 @@ function prepareInput(
           throw new Error('Redeem script inconsistent with prevOutScript');
       }
     }
-
     
     if (!expanded.pubkeys)
       throw new Error(
@@ -784,11 +781,13 @@ function prepareInput(
           bscript.toASM(redeemScript) +
           ')',
       );
+
     if (input.signatures && input.signatures.some(x => x !== undefined)) {
       expanded.signatures = input.signatures;
     }
 
     let signScript = redeemScript;
+
     if (expanded.type === SCRIPT_TYPES.P2WPKH) {
       signScript = payments.p2pkh({ pubkey: expanded.pubkeys[0] }).output!;
     }
