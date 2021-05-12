@@ -11,5 +11,4 @@ interface Bip32 {
     private: number;
 }
 export declare const bitcoin: Network;
-export declare const testnet: Network;
 export {};
