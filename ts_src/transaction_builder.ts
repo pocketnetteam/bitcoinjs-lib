@@ -6,7 +6,7 @@ import { Signer } from './ecpair';
 import * as ECPair from './ecpair';
 import { Network } from './networks';
 import * as networks from './networks';
-import { Payment } from './payments';
+import { Payment, HtlcOptions } from './payments';
 import * as payments from './payments';
 import * as bscript from './script';
 import { OPS as ops } from './script';
@@ -64,6 +64,7 @@ interface TxbInput {
   sequence?: number;
   scriptSig?: TxbScript;
   maxSignatures?: number;
+  htlc? : HtlcOptions
 }
 
 interface TxbOutput {
@@ -198,6 +199,7 @@ export class TransactionBuilder {
     vout: number,
     sequence?: number,
     prevOutScript?: Buffer,
+    htlc? : HtlcOptions
   ): number {
     if (!this.__canModifyInputs()) {
       throw new Error('No, this would invalidate signatures');
@@ -223,6 +225,7 @@ export class TransactionBuilder {
       sequence,
       prevOutScript,
       value,
+      htlc
     });
   }
 
@@ -254,7 +257,7 @@ export class TransactionBuilder {
     hashType?: number,
     witnessValue?: number,
     witnessScript?: Buffer,
-  ): void {
+  ) : void {
     trySign(
       getSigningData(
         this.network,
@@ -267,15 +270,15 @@ export class TransactionBuilder {
         hashType,
         witnessValue,
         witnessScript,
-        this.__USE_LOW_R,
-      ),
+        this.__USE_LOW_R
+      )
     );
   }
 
   private __addInputUnsafe(
     txHash: Buffer,
     vout: number,
-    options: TxbInput,
+    options: TxbInput
   ): number {
     if (Transaction.isCoinbaseHash(txHash)) {
       throw new Error('coinbase inputs not supported');
@@ -287,7 +290,7 @@ export class TransactionBuilder {
 
     let input: TxbInput = {};
 
-    // derive what we can from the scriptSig
+    // derive what we can from the scriptSig ???
     if (options.script !== undefined) {
       input = expandInput(options.script, options.witness || []);
     }
@@ -295,6 +298,10 @@ export class TransactionBuilder {
     // if an input value was given, retain it
     if (options.value !== undefined) {
       input.value = options.value;
+    }
+
+    if (options.htlc !== undefined) {
+      input.htlc = options.htlc;
     }
 
     // derive what we can from the previous transactions output script
@@ -320,6 +327,7 @@ export class TransactionBuilder {
       vout,
       options.sequence,
       options.scriptSig,
+      
     );
     this.__INPUTS[vin] = input;
     this.__PREV_TX_SET[prevTxOut] = true;
@@ -481,6 +489,21 @@ function expandInput(
       };
     }
 
+    /*case SCRIPT_TYPES.HTLC: {
+      const { output, pubkey, signature } = payments.htlc({
+        input: scriptSig,
+      });
+
+      return {
+        prevOutScript: output,
+        prevOutType: SCRIPT_TYPES.HTLC,
+        pubkeys: [pubkey],
+        signatures: [signature],
+        htlc : htlc
+      };
+    }*/
+    
+
     case SCRIPT_TYPES.P2PK: {
       const { signature } = payments.p2pk({ input: scriptSig });
 
@@ -627,7 +650,8 @@ function expandOutput(script: Buffer, ourPubKey?: Buffer): TxbOutput {
 
       return {
         type,
-        pubkeys: [ourPubKey]
+        pubkeys: [ourPubKey],
+        signatures: [undefined]
       };
     }
 
@@ -751,11 +775,7 @@ function prepareInput(
     if(expanded.type == SCRIPT_TYPES.P2SH){
       paymentconst = payments.p2sh
     }
-
-    if(expanded.type == SCRIPT_TYPES.HTLC){
-      paymentconst = payments.htlc
-    }
-
+    
     if(!paymentconst) paymentconst = payments.p2sh
 
     payment = paymentconst({ redeem: { output: redeemScript } }) as Payment;
@@ -796,7 +816,7 @@ function prepareInput(
       redeemScript,
       redeemScriptType: expanded.type,
 
-      prevOutType: expanded.type ==  SCRIPT_TYPES.HTLC ?  SCRIPT_TYPES.HTLC : SCRIPT_TYPES.P2SH,
+      prevOutType: SCRIPT_TYPES.P2SH,
       prevOutScript: payment.output,
 
       hasWitness: expanded.type === SCRIPT_TYPES.P2WPKH,
@@ -853,10 +873,10 @@ function prepareInput(
 
   if (input.prevOutType && input.prevOutScript) {
     // embedded scripts are not possible without extra information
-    if (input.prevOutType === SCRIPT_TYPES.HTLC)
+    /*if (input.prevOutType === SCRIPT_TYPES.HTLC)
     throw new Error(
       'PrevOutScript is ' + input.prevOutType + ', requires redeemScript',
-    );
+    );*/
 
     if (input.prevOutType === SCRIPT_TYPES.P2SH)
       throw new Error(
@@ -929,12 +949,14 @@ function build(
 
       return payments.p2pkh({ pubkey: pubkeys[0], signature: signatures[0] });
     }
+
     case SCRIPT_TYPES.P2WPKH: {
       if (pubkeys.length === 0) break;
       if (signatures.length === 0) break;
 
       return payments.p2wpkh({ pubkey: pubkeys[0], signature: signatures[0] });
     }
+
     case SCRIPT_TYPES.P2PK: {
       if (pubkeys.length === 0) break;
       if (signatures.length === 0) break;
@@ -959,16 +981,12 @@ function build(
     }
 
     case SCRIPT_TYPES.HTLC: {
-      const redeem = build(input.redeemScriptType!, input, allowIncomplete);
-      if (!redeem) return;
+      if (pubkeys.length === 0) break;
+      if (signatures.length === 0) break;
 
-      return payments.htlc({
-        redeem: {
-          output: redeem.output || input.redeemScript,
-          input: redeem.input,
-          witness: redeem.witness,
-        },
-      });
+      let htlc = input.htlc
+
+      return payments.htlc({ pubkey: pubkeys[0], signature: signatures[0], htlc : htlc});
     }
 
     case SCRIPT_TYPES.P2SH: {
@@ -1162,11 +1180,13 @@ function checkSignArgs(inputs: TxbInput[], signParams: TxbSignArg): void {
         `${posType} requires redeemScript`,
       );*/
 
-      tfMessage(
+     /* tfMessage(
         typeforce.Buffer,
         signParams.redeemScript,
         `${posType} requires redeemScript`,
-      );
+      );*/
+
+      break;
 
     case 'p2sh-p2ms':
     case 'p2sh-p2pk':
@@ -1250,14 +1270,19 @@ function trySign({
   signatureHash,
   hashType,
   useLowR,
-}: SigningData): void {
+}: SigningData, htlc? : Object): void {
   // enforce in order signing of public keys
   let signed = false;
+
+  htlc = htlc;
+
   for (const [i, pubKey] of input.pubkeys!.entries()) {
+
     if (!ourPubKey.equals(pubKey!)) continue;
     if (input.signatures![i]) throw new Error('Signature already exists');
 
     // TODO: add tests
+
     if (ourPubKey.length !== 33 && input.hasWitness) {
       throw new Error(
         'BIP143 rejects uncompressed public keys in P2WPKH or P2WSH',
@@ -1265,7 +1290,9 @@ function trySign({
     }
 
     const signature = keyPair.sign(signatureHash, useLowR);
+
     input.signatures![i] = bscript.signature.encode(signature, hashType);
+
     signed = true; /////////////////////
   }
 
@@ -1340,9 +1367,10 @@ function getSigningData(
     throw new Error('Inconsistent redeemScript');
   }
 
-  const ourPubKey =
-    keyPair.publicKey || (keyPair.getPublicKey && keyPair.getPublicKey());
+  const ourPubKey = keyPair.publicKey || (keyPair.getPublicKey && keyPair.getPublicKey());
+
   if (!canSign(input)) {
+
     if (witnessValue !== undefined) {
       if (input.value !== undefined && input.value !== witnessValue)
         throw new Error('Input did not match witnessValue');
@@ -1367,14 +1395,19 @@ function getSigningData(
 
   // ready to sign
   let signatureHash: Buffer;
+
   if (input.hasWitness) {
+
     signatureHash = tx.hashForWitnessV0(
       vin,
       input.signScript as Buffer,
       input.value as number,
       hashType,
     );
-  } else {
+
+  } 
+  else 
+  {
     signatureHash = tx.hashForSignature(
       vin,
       input.signScript as Buffer,
@@ -1388,6 +1421,6 @@ function getSigningData(
     keyPair,
     signatureHash,
     hashType,
-    useLowR: !!useLowR,
+    useLowR: !!useLowR
   };
 }

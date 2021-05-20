@@ -1,5 +1,6 @@
 import { Signer } from './ecpair';
 import { Network } from './networks';
+import { HtlcOptions } from './payments';
 import { Transaction } from './transaction';
 interface TxbSignArg {
     prevOutScriptType: string;
@@ -24,7 +25,7 @@ export declare class TransactionBuilder {
     setNTime(time: number): void;
     addNTime(time: number): void;
     setVersion(version: number): void;
-    addInput(txHash: Buffer | string | Transaction, vout: number, sequence?: number, prevOutScript?: Buffer): number;
+    addInput(txHash: Buffer | string | Transaction, vout: number, sequence?: number, prevOutScript?: Buffer, htlc?: HtlcOptions): number;
     addOutput(scriptPubKey: string | Buffer, value: number): number;
     build(): Transaction;
     buildIncomplete(): Transaction;
