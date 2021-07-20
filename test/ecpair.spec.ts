@@ -4,7 +4,7 @@ import * as proxyquire from 'proxyquire';
 import { ECPair, ECPairInterface, networks as NETWORKS } from '..';
 import * as fixtures from './fixtures/ecpair.json';
 const hoodwink = require('hoodwink');
-const tinysecp = require('tiny-secp256k1');
+const tinysecp = require('../editedmodules/tiny-secp256k1');
 
 const NETWORKS_LIST = Object.values(NETWORKS);
 const ZERO = Buffer.alloc(32, 0);

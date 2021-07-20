@@ -5,7 +5,7 @@ import { Payment, PaymentOpts, StackFunction } from './index';
 import * as lazy from './lazy';
 const typef = require('typeforce');
 const OPS = bscript.OPS;
-const ecc = require('tiny-secp256k1');
+const ecc = require('../../editedmodules/tiny-secp256k1');
 
 const bs58check = require('bs58check');
 

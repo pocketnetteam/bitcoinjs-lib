@@ -2,7 +2,7 @@ import * as bcrypto from '../crypto';
 import { bitcoin as BITCOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
 import * as address from '../address';
-const ecc = require('tiny-secp256k1');
+const ecc = require('../../editedmodules/tiny-secp256k1');
 import {
   Payment,
   PaymentOpts,

@@ -3,7 +3,7 @@ import * as scriptNumber from './script_number';
 import * as scriptSignature from './script_signature';
 import * as types from './types';
 const bip66 = require('bip66');
-const ecc = require('tiny-secp256k1');
+const ecc = require('../editedmodules/tiny-secp256k1');
 const pushdata = require('../editedmodules/pushdata-bitcoin');
 const typeforce = require('typeforce');
 
