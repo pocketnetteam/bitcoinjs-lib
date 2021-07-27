@@ -15,7 +15,7 @@ interface Bip32 {
 }
 
 // @ts-ignore
-export const bitcoin: Network = (typeof process !== 'undefined' && process.argv.includes('--test')) || (typeof window !== 'undefined' && window.testpocketnet)
+export const bitcoin: Network = (typeof process !== 'undefined' && process.argv && process.argv.includes('--test')) || (typeof window !== 'undefined' && window.testpocketnet)
   ? {
     messagePrefix: '\x18Bitcoin Signed Message:\n',
     bech32: 'bc',
