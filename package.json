@@ -1,7 +1,7 @@
 {
-  "name": "bitcoinjs-lib",
+  "name": "bastyonjs-lib",
   "version": "5.2.0",
-  "description": "Client-side Bitcoin JavaScript library",
+  "description": "Client-side Bastyon JavaScript library",
   "main": "./src/index.js",
   "types": "./types/index.d.ts",
   "engines": {
@@ -44,7 +44,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bitcoinjs/bitcoinjs-lib.git"
+    "url": "https://github.com/pocketnetteam/bitcoinjs-lib.git"
   },
   "files": [
     "src",
