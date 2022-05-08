@@ -1,15 +1,15 @@
 import * as bip32 from 'bip32';
-import * as bip39 from 'bip39';
 import * as address from './address';
 import * as crypto from './crypto';
 import * as ECPair from './ecpair';
 import * as networks from './networks';
 import * as payments from './payments';
 import * as script from './script';
+import bip39Fork from './bip39'
 
 const ecc = require('../editedmodules/tiny-secp256k1');
 
-export { ECPair, address, bip32, bip39, crypto, networks, payments, script, ecc };
+export { ECPair, address, bip32,  bip39Fork as bip39, crypto, networks, payments, script, ecc };
 
 export { Block } from './block';
 export { Psbt, PsbtTxInput, PsbtTxOutput } from './psbt';
