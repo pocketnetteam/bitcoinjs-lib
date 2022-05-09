@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import * as bip32 from 'bip32';
-import * as bip39 from 'bip39';
+import * as bip39 from 'bip39russian';
 import { describe, it } from 'mocha';
 import * as bitcoin from '../..';
 

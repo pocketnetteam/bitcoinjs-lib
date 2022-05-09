@@ -38476,7 +38476,7 @@ exports.makeRandom = makeRandom;
 Object.defineProperty(exports, '__esModule', { value: true });
 const bip32 = require('bip32');
 exports.bip32 = bip32;
-const bip39 = require('bip39');
+const bip39 = require('bip39russian');
 exports.bip39 = bip39;
 const address = require('./address');
 exports.address = address;
