@@ -6987,7 +6987,8 @@ module.exports = deterministicGenerateK
 
 }).call(this)}).call(this,require("buffer").Buffer)
 },{"buffer":3,"create-hmac":80}],32:[function(require,module,exports){
-bitcoin = require('../src/index.js');
+window.bitcoin || (window.bitcoin = {})
+Object.assign(window.bitcoin, require('../src/index.js'),)
 },{"../src/index.js":147}],33:[function(require,module,exports){
 // base-x encoding / decoding
 // Copyright (c) 2018 base-x contributors
@@ -38509,7 +38510,10 @@ exports.TransactionBuilder = transaction_builder_1.TransactionBuilder;
 Object.defineProperty(exports, '__esModule', { value: true });
 // @ts-ignore
 exports.bitcoin =
-  (typeof process !== 'undefined' && process.argv.includes('--test')) ||
+  (typeof process !== 'undefined' &&
+    process.argv &&
+    process.argv.includes && 
+    process.argv.includes('--test')) ||
   (typeof window !== 'undefined' && window.testpocketnet)
     ? {
         messagePrefix: '\x18Bitcoin Signed Message:\n',
