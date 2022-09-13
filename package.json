@@ -53,8 +53,8 @@
   "dependencies": {
     "bech32": "^1.1.2",
     "bip174": "^2.0.1",
-    "bip32": "^2.0.4",
-    "bip39russian": "^1.0.7",
+    "bip39russian": "1.0.7",
+    "bip32": "file:editedmodules/bip32",
     "bip66": "^1.1.0",
     "bitcoin-ops": "^1.4.0",
     "browserify": "^17.0.0",

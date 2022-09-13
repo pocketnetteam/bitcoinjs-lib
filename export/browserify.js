@@ -1,1 +1,2 @@
-bitcoin = require('../src/index.js');
+window.bitcoin || (window.bitcoin = {})
+Object.assign(window.bitcoin, require('../src/index.js'),)
