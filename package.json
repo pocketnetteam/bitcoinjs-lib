@@ -51,10 +51,11 @@
     "types"
   ],
   "dependencies": {
+    "babelify": "^10.0.0",
     "bech32": "^1.1.2",
     "bip174": "^2.0.1",
-    "bip39russian": "1.0.7",
     "bip32": "file:editedmodules/bip32",
+    "bip39russian": "file:editedmodules/bip39",
     "bip66": "^1.1.0",
     "bitcoin-ops": "^1.4.0",
     "browserify": "^17.0.0",
