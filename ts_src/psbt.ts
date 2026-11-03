@@ -155,6 +155,14 @@ export class Psbt {
     this.setVersion(version);
   }
 
+  get ntime(): number {
+    return this.__CACHE.__TX.nTime;
+  }
+
+  set ntime(ntime: number) {
+    this.setNtime(ntime);
+  }
+
   get locktime(): number {
     return this.__CACHE.__TX.locktime;
   }
@@ -216,6 +224,15 @@ export class Psbt {
     checkInputsForPartialSig(this.data.inputs, 'setLocktime');
     const c = this.__CACHE;
     c.__TX.locktime = locktime;
+    c.__EXTRACTED_TX = undefined;
+    return this;
+  }
+
+  setNtime(ntime: number): this {
+    check32Bit(ntime);
+    checkInputsForPartialSig(this.data.inputs, 'setNtime');
+    const c = this.__CACHE;
+    c.__TX.nTime = nTime;
     c.__EXTRACTED_TX = undefined;
     return this;
   }
